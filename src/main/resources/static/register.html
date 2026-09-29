@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register — TripSplit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.75);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-blue: #38bdf8;
+            --accent-purple: #c084fc;
+            --accent-emerald: #34d399;
+            --accent-rose: #fb7185;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-shadow: 0 16px 40px 0 rgba(0, 0, 0, 0.45);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.18) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(192, 132, 252, 0.18) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(52, 211, 153, 0.12) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 16px 32px;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+
+        .auth-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .auth-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 480px;
+            padding: 36px 32px;
+            box-shadow: var(--glass-shadow);
+            position: relative;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 24px;
+            right: 24px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            border-radius: 3px 3px 0 0;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .auth-icon-badge {
+            width: 56px;
+            height: 56px;
+            border-radius: 16px;
+            background: rgba(192, 132, 252, 0.12);
+            border: 1px solid rgba(192, 132, 252, 0.3);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-purple);
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+
+        .auth-title {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 6px;
+        }
+
+        .auth-subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i.prefix-icon {
+            position: absolute;
+            left: 14px;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            pointer-events: none;
+        }
+
+        .input-wrapper input {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 11px 42px 11px 40px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .input-wrapper input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+        }
+
+        .toggle-password:hover {
+            color: var(--text-main);
+        }
+
+        .alert-box {
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.88rem;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-danger {
+            background: rgba(251, 113, 133, 0.15);
+            border: 1px solid rgba(251, 113, 133, 0.35);
+            color: #fda4af;
+        }
+
+        .alert-success {
+            background: rgba(52, 211, 153, 0.15);
+            border: 1px solid rgba(52, 211, 153, 0.35);
+            color: #6ee7b7;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #0284c7, #7e22ce);
+            color: white;
+            border: none;
+            padding: 13px 20px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 16px rgba(2, 132, 199, 0.35);
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 22px rgba(2, 132, 199, 0.5);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .auth-footer {
+            margin-top: 24px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .auth-footer a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .auth-footer a:hover {
+            color: var(--accent-purple);
+            text-decoration: underline;
+        }
+
+        .helper-text {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <a href="/" class="logo">
+                <i class="fa-solid fa-receipt"></i> TripSplit
+            </a>
+            <div style="font-size: 0.85rem; color: var(--text-muted);">
+                College Project Expense Tracker
+            </div>
+        </div>
+    </header>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="auth-icon-badge">
+                    <i class="fa-solid fa-user-plus"></i>
+                </div>
+                <h1 class="auth-title">Create Account</h1>
+                <p class="auth-subtitle">Join TripSplit to organize travel expenses with friends</p>
+            </div>
+
+            <div id="alertBox" class="alert-box">
+                <i id="alertIcon" class="fa-solid"></i>
+                <span id="alertMessage"></span>
+            </div>
+
+            <form id="registerForm" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <div class="input-wrapper">
+                        <i class="fa-regular fa-user prefix-icon"></i>
+                        <input type="text" id="name" placeholder="John Doe" required autocomplete="name">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fa-regular fa-envelope prefix-icon"></i>
+                        <input type="email" id="email" placeholder="name@example.com" required autocomplete="email">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-key prefix-icon"></i>
+                        <input type="password" id="password" placeholder="At least 6 characters" required autocomplete="new-password">
+                        <i class="fa-regular fa-eye toggle-password" id="togglePassword" onclick="togglePasswordVisibility('password', 'togglePassword')"></i>
+                    </div>
+                    <div class="helper-text">Minimum 6 characters.</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-shield-halved prefix-icon"></i>
+                        <input type="password" id="confirmPassword" placeholder="Re-enter your password" required autocomplete="new-password">
+                        <i class="fa-regular fa-eye toggle-password" id="toggleConfirmPassword" onclick="togglePasswordVisibility('confirmPassword', 'toggleConfirmPassword')"></i>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn-submit">
+                    <span id="btnText">Create Account</span>
+                    <i id="btnIcon" class="fa-solid fa-arrow-right"></i>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Already have an account? <a href="/login.html">Login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function togglePasswordVisibility(inputId, toggleIconId) {
+            const passwordInput = document.getElementById(inputId);
+            const toggleIcon = document.getElementById(toggleIconId);
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                toggleIcon.classList.remove("fa-eye");
+                toggleIcon.classList.add("fa-eye-slash");
+            } else {
+                passwordInput.type = "password";
+                toggleIcon.classList.remove("fa-eye-slash");
+                toggleIcon.classList.add("fa-eye");
+            }
+        }
+
+        function showAlert(message, type = "danger") {
+            const box = document.getElementById("alertBox");
+            const icon = document.getElementById("alertIcon");
+            const msg = document.getElementById("alertMessage");
+
+            box.className = `alert-box alert-${type}`;
+            box.style.display = "flex";
+            msg.textContent = message;
+
+            if (type === "success") {
+                icon.className = "fa-solid fa-circle-check";
+            } else {
+                icon.className = "fa-solid fa-triangle-exclamation";
+            }
+        }
+
+        function hideAlert() {
+            document.getElementById("alertBox").style.display = "none";
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            hideAlert();
+
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value;
+            const confirmPassword = document.getElementById("confirmPassword").value;
+            const submitBtn = document.getElementById("submitBtn");
+            const btnText = document.getElementById("btnText");
+            const btnIcon = document.getElementById("btnIcon");
+
+            // Client-side validations
+            if (!name) {
+                showAlert("Please enter your full name.");
+                return;
+            }
+
+            if (!email) {
+                showAlert("Please enter a valid email address.");
+                return;
+            }
+
+            if (password.length < 6) {
+                showAlert("Password must be at least 6 characters long.");
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showAlert("Passwords do not match. Please re-check.");
+                return;
+            }
+
+            // Loading state
+            submitBtn.disabled = true;
+            btnText.textContent = "Creating Account...";
+            btnIcon.className = "fa-solid fa-circle-notch fa-spin";
+
+            try {
+                const res = await fetch("/api/auth/register", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, email, password, confirmPassword })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    // Store auth state directly for smooth onboarding
+                    localStorage.setItem("tripsplit_token", data.token);
+                    localStorage.setItem("tripsplit_user", JSON.stringify(data.user));
+
+                    showAlert("Account created successfully! Redirecting to dashboard...", "success");
+                    setTimeout(() => {
+                        window.location.href = "/";
+                    }, 800);
+                } else {
+                    let errMsg = data.message || "Failed to create account.";
+                    if (data.details && data.details.length > 0) {
+                        errMsg += " (" + data.details.join(", ") + ")";
+                    }
+                    showAlert(errMsg);
+                    submitBtn.disabled = false;
+                    btnText.textContent = "Create Account";
+                    btnIcon.className = "fa-solid fa-arrow-right";
+                }
+            } catch (err) {
+                console.error("Register request failed", err);
+                showAlert("Unable to connect to the server. Please ensure the backend is running.");
+                submitBtn.disabled = false;
+                btnText.textContent = "Create Account";
+                btnIcon.className = "fa-solid fa-arrow-right";
+            }
+        }
+    </script>
+</body>
+</html>

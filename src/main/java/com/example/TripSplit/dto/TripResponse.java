@@ -13,10 +13,13 @@ public class TripResponse {
     private List<ParticipantDTO> participants;
     private BigDecimal totalExpenses;
     private int expenseCount;
+    private Long createdByUserId;
+    private String createdByUserName;
+    private String createdByUserEmail;
 
     public TripResponse() {}
 
-    public TripResponse(Long id, String title, String description, String currency, LocalDateTime createdAt, List<ParticipantDTO> participants, BigDecimal totalExpenses, int expenseCount) {
+    public TripResponse(Long id, String title, String description, String currency, LocalDateTime createdAt, List<ParticipantDTO> participants, BigDecimal totalExpenses, int expenseCount, Long createdByUserId, String createdByUserName, String createdByUserEmail) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -25,6 +28,9 @@ public class TripResponse {
         this.participants = participants;
         this.totalExpenses = totalExpenses;
         this.expenseCount = expenseCount;
+        this.createdByUserId = createdByUserId;
+        this.createdByUserName = createdByUserName;
+        this.createdByUserEmail = createdByUserEmail;
     }
 
     public static TripResponseBuilder builder() {
@@ -40,6 +46,9 @@ public class TripResponse {
         private List<ParticipantDTO> participants;
         private BigDecimal totalExpenses;
         private int expenseCount;
+        private Long createdByUserId;
+        private String createdByUserName;
+        private String createdByUserEmail;
 
         public TripResponseBuilder id(Long id) { this.id = id; return this; }
         public TripResponseBuilder title(String title) { this.title = title; return this; }
@@ -49,9 +58,12 @@ public class TripResponse {
         public TripResponseBuilder participants(List<ParticipantDTO> participants) { this.participants = participants; return this; }
         public TripResponseBuilder totalExpenses(BigDecimal totalExpenses) { this.totalExpenses = totalExpenses; return this; }
         public TripResponseBuilder expenseCount(int expenseCount) { this.expenseCount = expenseCount; return this; }
+        public TripResponseBuilder createdByUserId(Long createdByUserId) { this.createdByUserId = createdByUserId; return this; }
+        public TripResponseBuilder createdByUserName(String createdByUserName) { this.createdByUserName = createdByUserName; return this; }
+        public TripResponseBuilder createdByUserEmail(String createdByUserEmail) { this.createdByUserEmail = createdByUserEmail; return this; }
 
         public TripResponse build() {
-            return new TripResponse(id, title, description, currency, createdAt, participants, totalExpenses, expenseCount);
+            return new TripResponse(id, title, description, currency, createdAt, participants, totalExpenses, expenseCount, createdByUserId, createdByUserName, createdByUserEmail);
         }
     }
 
@@ -78,4 +90,13 @@ public class TripResponse {
 
     public int getExpenseCount() { return expenseCount; }
     public void setExpenseCount(int expenseCount) { this.expenseCount = expenseCount; }
+
+    public Long getCreatedByUserId() { return createdByUserId; }
+    public void setCreatedByUserId(Long createdByUserId) { this.createdByUserId = createdByUserId; }
+
+    public String getCreatedByUserName() { return createdByUserName; }
+    public void setCreatedByUserName(String createdByUserName) { this.createdByUserName = createdByUserName; }
+
+    public String getCreatedByUserEmail() { return createdByUserEmail; }
+    public void setCreatedByUserEmail(String createdByUserEmail) { this.createdByUserEmail = createdByUserEmail; }
 }

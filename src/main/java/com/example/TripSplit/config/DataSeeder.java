@@ -6,7 +6,12 @@ import com.example.TripSplit.dto.TripResponse;
 import com.example.TripSplit.service.ExpenseService;
 import com.example.TripSplit.service.SettlementService;
 import com.example.TripSplit.service.TripService;
+import com.example.TripSplit.entity.Trip;
+import com.example.TripSplit.entity.User;
+import com.example.TripSplit.repository.TripRepository;
+import com.example.TripSplit.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -18,15 +23,36 @@ public class DataSeeder implements CommandLineRunner {
     private final TripService tripService;
     private final ExpenseService expenseService;
     private final SettlementService settlementService;
+    private final UserRepository userRepository;
+    private final TripRepository tripRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public DataSeeder(TripService tripService, ExpenseService expenseService, SettlementService settlementService) {
+    public DataSeeder(TripService tripService,
+                      ExpenseService expenseService,
+                      SettlementService settlementService,
+                      UserRepository userRepository,
+                      TripRepository tripRepository,
+                      PasswordEncoder passwordEncoder) {
         this.tripService = tripService;
         this.expenseService = expenseService;
         this.settlementService = settlementService;
+        this.userRepository = userRepository;
+        this.tripRepository = tripRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public void run(String... args) throws Exception {
+        // Seed default demo user for instant login
+        User demoUser = userRepository.findByEmail("demo@tripsplit.com").orElseGet(() -> {
+            User user = User.builder()
+                    .name("Demo User")
+                    .email("demo@tripsplit.com")
+                    .password(passwordEncoder.encode("Password123"))
+                    .build();
+            return userRepository.save(user);
+        });
+
         // Seed initial sample trip for instant demo & evaluation
         CreateTripRequest tripReq = CreateTripRequest.builder()
                 .title("Goa Beach Vacation 2026")
@@ -37,6 +63,13 @@ public class DataSeeder implements CommandLineRunner {
 
         TripResponse trip = tripService.createTrip(tripReq);
         Long tripId = trip.getId();
+
+        // Associate demo user with seeded trip
+        Trip tripEntity = tripRepository.findById(tripId).orElse(null);
+        if (tripEntity != null) {
+            tripEntity.setUser(demoUser);
+            tripRepository.save(tripEntity);
+        }
 
         Long aliceId = trip.getParticipants().stream().filter(p -> p.getName().equals("Alice")).findFirst().get().getId();
         Long bobId = trip.getParticipants().stream().filter(p -> p.getName().equals("Bob")).findFirst().get().getId();

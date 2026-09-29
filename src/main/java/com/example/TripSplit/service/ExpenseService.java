@@ -24,7 +24,8 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final AuditLogService auditLogService;
 
-    public ExpenseService(TripRepository tripRepository, ParticipantRepository participantRepository, ExpenseRepository expenseRepository, AuditLogService auditLogService) {
+    public ExpenseService(TripRepository tripRepository, ParticipantRepository participantRepository,
+            ExpenseRepository expenseRepository, AuditLogService auditLogService) {
         this.tripRepository = tripRepository;
         this.participantRepository = participantRepository;
         this.expenseRepository = expenseRepository;
@@ -40,7 +41,8 @@ public class ExpenseService {
                 .orElseThrow(() -> new ResourceNotFoundException("Payer not found with id: " + request.getPayerId()));
 
         if (!payer.getTrip().getId().equals(tripId)) {
-            throw new BusinessRuleViolationException("Payer with ID " + payer.getId() + " does not belong to trip ID " + tripId);
+            throw new BusinessRuleViolationException(
+                    "Payer with ID " + payer.getId() + " does not belong to trip ID " + tripId);
         }
 
         List<Participant> sharingParticipants = participantRepository.findAllById(request.getParticipantIds());
@@ -50,7 +52,8 @@ public class ExpenseService {
 
         for (Participant p : sharingParticipants) {
             if (!p.getTrip().getId().equals(tripId)) {
-                throw new BusinessRuleViolationException("Participant " + p.getName() + " (ID " + p.getId() + ") does not belong to trip ID " + tripId);
+                throw new BusinessRuleViolationException(
+                        "Participant " + p.getName() + " (ID " + p.getId() + ") does not belong to trip ID " + tripId);
             }
         }
 
@@ -59,7 +62,8 @@ public class ExpenseService {
                 .payer(payer)
                 .description(request.getDescription())
                 .amount(request.getAmount().setScale(2, RoundingMode.HALF_UP))
-                .category(request.getCategory() != null && !request.getCategory().isBlank() ? request.getCategory() : "GENERAL")
+                .category(request.getCategory() != null && !request.getCategory().isBlank() ? request.getCategory()
+                        : "GENERAL")
                 .splits(new ArrayList<>())
                 .build();
 
@@ -79,8 +83,8 @@ public class ExpenseService {
 
             if (customSum.compareTo(totalAmount) != 0) {
                 throw new BusinessRuleViolationException(
-                        String.format("Sum of custom splits (%.2f) must equal expense total amount (%.2f)", customSum, totalAmount)
-                );
+                        String.format("Sum of custom splits (%.2f) must equal expense total amount (%.2f)", customSum,
+                                totalAmount));
             }
 
             for (Participant p : sharingParticipants) {
@@ -101,7 +105,8 @@ public class ExpenseService {
             for (int i = 0; i < count; i++) {
                 Participant p = sharingParticipants.get(i);
                 BigDecimal share = baseShare;
-                // Add 1 penny to first 'remainder' participants so sum exactly equals totalAmount
+                // Add 1 penny to first 'remainder' participants so sum exactly equals
+                // totalAmount
                 if (i < remainder.multiply(BigDecimal.valueOf(100)).intValue()) {
                     share = share.add(new BigDecimal("0.01"));
                 }
@@ -117,12 +122,13 @@ public class ExpenseService {
 
         Expense savedExpense = expenseRepository.save(expense);
 
-        // Enforce Business Rule 1: Sum of participants' net balances for trip must equal zero
+        // Enforce Business Rule 1: Sum of participants' net balances for trip must
+        // equal zero
         TripBalanceSummaryDTO balanceSummary = calculateParticipantBalances(tripId);
         if (!balanceSummary.getIsBalanceValid()) {
             throw new BusinessRuleViolationException(
-                    "Business Rule Violation: Sum of participants' net balances is non-zero (" + balanceSummary.getNetBalanceSum() + ")"
-            );
+                    "Business Rule Violation: Sum of participants' net balances is non-zero ("
+                            + balanceSummary.getNetBalanceSum() + ")");
         }
 
         auditLogService.log(tripId, "EXPENSE_ADDED", String.format("Added expense '%s' of %s %.2f paid by %s",
@@ -219,7 +225,8 @@ public class ExpenseService {
         }
 
         expenseRepository.delete(expense);
-        auditLogService.log(tripId, "EXPENSE_DELETED", "Deleted expense '" + expense.getDescription() + "' (ID " + expenseId + ")");
+        auditLogService.log(tripId, "EXPENSE_DELETED",
+                "Deleted expense '" + expense.getDescription() + "' (ID " + expenseId + ")");
     }
 
     public ExpenseResponse mapToExpenseResponse(Expense expense) {

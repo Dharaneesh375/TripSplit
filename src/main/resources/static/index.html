@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TripSplit — Group Expense Settlement Tracker</title>
+    <!-- Authentication Guard -->
+    <script>
+        (function() {
+            const token = localStorage.getItem("tripsplit_token");
+            if (!token) {
+                window.location.replace("/login.html");
+            }
+        })();
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -48,7 +57,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            padding: 16px 32px;
+            padding: 14px 32px;
         }
 
         .header-container {
@@ -57,6 +66,8 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
         }
 
         .logo {
@@ -68,31 +79,92 @@
             background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            text-decoration: none;
         }
 
         .nav-links {
             display: flex;
-            gap: 16px;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
         .nav-btn {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border-color);
             color: var(--text-main);
-            padding: 8px 16px;
+            padding: 8px 14px;
             border-radius: 12px;
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             font-weight: 500;
             display: flex;
             align-items: center;
             gap: 8px;
             transition: all 0.2s ease;
+            cursor: pointer;
         }
 
         .nav-btn:hover {
             background: rgba(255, 255, 255, 0.15);
             transform: translateY(-2px);
+        }
+
+        .nav-btn.active {
+            background: rgba(56, 189, 248, 0.15);
+            border-color: rgba(56, 189, 248, 0.4);
+            color: var(--accent-blue);
+        }
+
+        .user-profile-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(30, 41, 59, 0.85);
+            border: 1px solid rgba(192, 132, 252, 0.35);
+            padding: 6px 14px 6px 8px;
+            border-radius: 20px;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .user-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .user-email {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        .btn-logout {
+            background: rgba(251, 113, 133, 0.12);
+            border-color: rgba(251, 113, 133, 0.3);
+            color: #fda4af;
+        }
+
+        .btn-logout:hover {
+            background: rgba(251, 113, 133, 0.25);
+            color: #fff;
         }
 
         .container {
@@ -200,6 +272,8 @@
             margin-bottom: 20px;
             padding-bottom: 12px;
             border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .card-title {
@@ -221,6 +295,19 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+        }
+
+        .creator-tag {
+            font-size: 0.8rem;
+            color: var(--accent-purple);
+            background: rgba(192, 132, 252, 0.12);
+            border: 1px solid rgba(192, 132, 252, 0.25);
+            padding: 3px 10px;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
         }
 
         .balance-grid {
@@ -416,12 +503,25 @@
 
     <header>
         <div class="header-container">
-            <div class="logo">
+            <a href="/" class="logo">
                 <i class="fa-solid fa-receipt"></i> TripSplit
-            </div>
+            </a>
             <div class="nav-links">
-                <a href="/swagger-ui.html" target="_blank" class="nav-btn"><i class="fa-solid fa-code"></i> OpenAPI / Swagger</a>
-                <a href="/h2-console" target="_blank" class="nav-btn"><i class="fa-solid fa-database"></i> H2 Database Console</a>
+                <a href="/" class="nav-btn active"><i class="fa-solid fa-chart-pie"></i> Dashboard</a>
+                <a href="/swagger-ui.html" target="_blank" class="nav-btn"><i class="fa-solid fa-code"></i> Swagger</a>
+                <a href="/h2-console" target="_blank" class="nav-btn"><i class="fa-solid fa-database"></i> H2 DB</a>
+                
+                <div class="user-profile-badge" id="userProfileBadge">
+                    <div class="user-avatar" id="navAvatar">U</div>
+                    <div class="user-info">
+                        <span class="user-name" id="navUserName">User</span>
+                        <span class="user-email" id="navUserEmail">user@example.com</span>
+                    </div>
+                </div>
+
+                <button class="nav-btn btn-logout" onclick="handleLogout()" title="Sign out of TripSplit">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
             </div>
         </div>
     </header>
@@ -436,7 +536,7 @@
                 </select>
             </div>
 
-            <div style="display: flex; gap: 12px;">
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
                 <button class="btn-primary" onclick="openNewTripModal()"><i class="fa-solid fa-plus"></i> Create New Trip</button>
                 <button class="btn-primary" style="background: linear-gradient(135deg, #059669, #0d9488);" onclick="openAddExpenseModal()"><i class="fa-solid fa-file-invoice-dollar"></i> Add Expense</button>
             </div>
@@ -451,6 +551,9 @@
                         <div>
                             <h2 id="tripTitle" style="font-size: 1.5rem; font-weight: 800; color: var(--text-main);">Loading...</h2>
                             <p id="tripDesc" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;"></p>
+                            <div id="tripCreatorTag" class="creator-tag" style="display: none;">
+                                <i class="fa-solid fa-user-check"></i> <span id="tripCreatorText"></span>
+                            </div>
                         </div>
                         <div class="badge-status" id="zeroSumBadge">
                             <i class="fa-solid fa-shield-halved"></i> Net Balance Sum: 0.00 (Balanced)
@@ -535,11 +638,11 @@
             <form id="newTripForm" onsubmit="handleCreateTrip(event)">
                 <div class="form-group">
                     <label>Trip Title</label>
-                    <input type="text" id="newTripTitle" placeholder="e.g. Goa Beach Vacation 2026" required>
+                    <input type="text" id="newTripTitle" placeholder="e.g. Manali Snow Expedition 2026" required>
                 </div>
                 <div class="form-group">
                     <label>Description</label>
-                    <input type="text" id="newTripDesc" placeholder="e.g. Hotel, Fuel & Food expenses">
+                    <input type="text" id="newTripDesc" placeholder="e.g. Cottage, Skiing & Dining">
                 </div>
                 <div class="form-group">
                     <label>Currency</label>
@@ -600,13 +703,76 @@
         let trips = [];
         let activeTrip = null;
 
+        // Display user profile from localStorage or fetch /api/auth/me
         document.addEventListener("DOMContentLoaded", () => {
+            initUserProfile();
             fetchTrips();
         });
 
+        function initUserProfile() {
+            const rawUser = localStorage.getItem("tripsplit_user");
+            if (rawUser) {
+                try {
+                    const user = JSON.parse(rawUser);
+                    document.getElementById("navUserName").textContent = user.name || "User";
+                    document.getElementById("navUserEmail").textContent = user.email || "";
+                    document.getElementById("navAvatar").textContent = (user.name || "U").charAt(0).toUpperCase();
+                } catch (e) {
+                    console.error("Error parsing user info", e);
+                }
+            }
+
+            // Also refresh profile from backend to ensure token is valid
+            authFetch("/api/auth/me")
+                .then(res => res && res.json())
+                .then(user => {
+                    if (user) {
+                        localStorage.setItem("tripsplit_user", JSON.stringify(user));
+                        document.getElementById("navUserName").textContent = user.name || "User";
+                        document.getElementById("navUserEmail").textContent = user.email || "";
+                        document.getElementById("navAvatar").textContent = (user.name || "U").charAt(0).toUpperCase();
+                    }
+                })
+                .catch(() => {});
+        }
+
+        // Authenticated fetch wrapper injecting Bearer token
+        async function authFetch(url, options = {}) {
+            const token = localStorage.getItem("tripsplit_token");
+            if (!token) {
+                window.location.replace("/login.html");
+                return null;
+            }
+
+            const headers = options.headers ? { ...options.headers } : {};
+            headers["Authorization"] = `Bearer ${token}`;
+
+            try {
+                const res = await fetch(url, { ...options, headers });
+                if (res.status === 401 || res.status === 403) {
+                    // Token expired or invalid
+                    localStorage.removeItem("tripsplit_token");
+                    localStorage.removeItem("tripsplit_user");
+                    window.location.replace("/login.html");
+                    return null;
+                }
+                return res;
+            } catch (err) {
+                console.error("Network error during authFetch", err);
+                throw err;
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem("tripsplit_token");
+            localStorage.removeItem("tripsplit_user");
+            window.location.href = "/login.html";
+        }
+
         async function fetchTrips() {
             try {
-                const res = await fetch('/api/trips');
+                const res = await authFetch('/api/trips');
+                if (!res) return;
                 trips = await res.json();
                 const select = document.getElementById('tripSelect');
                 select.innerHTML = '';
@@ -619,6 +785,9 @@
                 if (trips.length > 0) {
                     select.value = trips[0].id;
                     loadSelectedTrip();
+                } else {
+                    document.getElementById('tripTitle').textContent = "No trips created yet";
+                    document.getElementById('tripDesc').textContent = "Click 'Create New Trip' above to start splitting expenses!";
                 }
             } catch (err) {
                 console.error('Failed to fetch trips', err);
@@ -630,7 +799,8 @@
             if (!tripId) return;
 
             try {
-                const res = await fetch(`/api/trips/${tripId}/summary`);
+                const res = await authFetch(`/api/trips/${tripId}/summary`);
+                if (!res) return;
                 const data = await res.json();
                 activeTrip = data;
 
@@ -638,6 +808,16 @@
                 document.getElementById('tripDesc').textContent = data.trip.description || 'No description provided';
                 document.getElementById('tripTotalSpending').textContent = `${data.trip.currency} ${data.balanceSummary.totalSpending.toFixed(2)}`;
                 document.getElementById('tripParticipantCount').textContent = data.trip.participants.length;
+
+                // Show creator info if present
+                const creatorTag = document.getElementById('tripCreatorTag');
+                const creatorText = document.getElementById('tripCreatorText');
+                if (data.trip.createdByUserName) {
+                    creatorTag.style.display = 'inline-flex';
+                    creatorText.textContent = `Trip created by ${data.trip.createdByUserName}`;
+                } else {
+                    creatorTag.style.display = 'none';
+                }
 
                 // Zero sum rule status
                 const badge = document.getElementById('zeroSumBadge');
@@ -736,7 +916,8 @@
 
         async function fetchAuditLogs(tripId) {
             try {
-                const res = await fetch(`/api/trips/${tripId}/audit-logs`);
+                const res = await authFetch(`/api/trips/${tripId}/audit-logs`);
+                if (!res) return;
                 const logs = await res.json();
                 const container = document.getElementById('auditLogList');
                 container.innerHTML = '';
@@ -759,7 +940,8 @@
             if (!activeTrip) return;
             const tripId = activeTrip.trip.id;
             try {
-                const res = await fetch(`/api/trips/${tripId}/settlements/generate`, { method: 'POST' });
+                const res = await authFetch(`/api/trips/${tripId}/settlements/generate`, { method: 'POST' });
+                if (!res) return;
                 if (!res.ok) {
                     const errData = await res.json();
                     alert(`Business Rule Error: ${errData.message}`);
@@ -775,8 +957,10 @@
             if (!activeTrip) return;
             const tripId = activeTrip.trip.id;
             try {
-                await fetch(`/api/trips/${tripId}/settlements/${settlementId}/settle`, { method: 'PATCH' });
-                loadSelectedTrip();
+                const res = await authFetch(`/api/trips/${tripId}/settlements/${settlementId}/settle`, { method: 'PATCH' });
+                if (res && res.ok) {
+                    loadSelectedTrip();
+                }
             } catch (err) {
                 console.error(err);
             }
@@ -822,13 +1006,15 @@
             const participantNames = namesStr.split(',').map(s => s.trim()).filter(s => s.length > 0);
 
             try {
-                const res = await fetch('/api/trips', {
+                const res = await authFetch('/api/trips', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ title, description, currency, participantNames })
                 });
+                if (!res) return;
                 if (res.ok) {
                     closeModal('newTripModal');
+                    document.getElementById('newTripForm').reset();
                     fetchTrips();
                 } else {
                     const err = await res.json();
@@ -853,14 +1039,16 @@
             const participantIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
 
             try {
-                const res = await fetch(`/api/trips/${tripId}/expenses`, {
+                const res = await authFetch(`/api/trips/${tripId}/expenses`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ description, amount, category, payerId, participantIds })
                 });
 
+                if (!res) return;
                 if (res.ok) {
                     closeModal('addExpenseModal');
+                    document.getElementById('addExpenseForm').reset();
                     loadSelectedTrip();
                 } else {
                     const err = await res.json();

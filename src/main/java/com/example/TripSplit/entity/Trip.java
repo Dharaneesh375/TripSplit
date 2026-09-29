@@ -38,9 +38,18 @@ public class Trip {
     @JsonIgnoreProperties("trip")
     private List<Settlement> settlements = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password"})
+    private User user;
+
     public Trip() {}
 
     public Trip(Long id, String title, String description, String currency, LocalDateTime createdAt, List<Participant> participants, List<Expense> expenses, List<Settlement> settlements) {
+        this(id, title, description, currency, createdAt, participants, expenses, settlements, null);
+    }
+
+    public Trip(Long id, String title, String description, String currency, LocalDateTime createdAt, List<Participant> participants, List<Expense> expenses, List<Settlement> settlements, User user) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -49,6 +58,7 @@ public class Trip {
         if (participants != null) this.participants = participants;
         if (expenses != null) this.expenses = expenses;
         if (settlements != null) this.settlements = settlements;
+        this.user = user;
     }
 
     @PrePersist
@@ -72,6 +82,7 @@ public class Trip {
         private List<Participant> participants = new ArrayList<>();
         private List<Expense> expenses = new ArrayList<>();
         private List<Settlement> settlements = new ArrayList<>();
+        private User user;
 
         public TripBuilder id(Long id) { this.id = id; return this; }
         public TripBuilder title(String title) { this.title = title; return this; }
@@ -81,9 +92,10 @@ public class Trip {
         public TripBuilder participants(List<Participant> participants) { this.participants = participants; return this; }
         public TripBuilder expenses(List<Expense> expenses) { this.expenses = expenses; return this; }
         public TripBuilder settlements(List<Settlement> settlements) { this.settlements = settlements; return this; }
+        public TripBuilder user(User user) { this.user = user; return this; }
 
         public Trip build() {
-            return new Trip(id, title, description, currency, createdAt, participants, expenses, settlements);
+            return new Trip(id, title, description, currency, createdAt, participants, expenses, settlements, user);
         }
     }
 
@@ -110,4 +122,7 @@ public class Trip {
 
     public List<Settlement> getSettlements() { return settlements; }
     public void setSettlements(List<Settlement> settlements) { this.settlements = settlements; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 }

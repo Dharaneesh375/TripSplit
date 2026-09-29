@@ -6,6 +6,7 @@ import com.example.TripSplit.dto.TripResponse;
 import com.example.TripSplit.entity.Expense;
 import com.example.TripSplit.entity.Participant;
 import com.example.TripSplit.entity.Trip;
+import com.example.TripSplit.entity.User;
 import com.example.TripSplit.exception.ResourceNotFoundException;
 import com.example.TripSplit.repository.TripRepository;
 import org.springframework.stereotype.Service;
@@ -20,18 +21,23 @@ public class TripService {
 
     private final TripRepository tripRepository;
     private final AuditLogService auditLogService;
+    private final AuthService authService;
 
-    public TripService(TripRepository tripRepository, AuditLogService auditLogService) {
+    public TripService(TripRepository tripRepository, AuditLogService auditLogService, AuthService authService) {
         this.tripRepository = tripRepository;
         this.auditLogService = auditLogService;
+        this.authService = authService;
     }
 
     @Transactional
     public TripResponse createTrip(CreateTripRequest request) {
+        User currentUser = authService.getAuthenticatedUser();
+
         Trip trip = Trip.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
                 .currency(request.getCurrency() != null && !request.getCurrency().isBlank() ? request.getCurrency() : "INR")
+                .user(currentUser)
                 .build();
 
         if (request.getParticipantNames() != null) {
@@ -47,7 +53,8 @@ public class TripService {
         }
 
         Trip savedTrip = tripRepository.save(trip);
-        auditLogService.log(savedTrip.getId(), "TRIP_CREATED", "Created trip '" + savedTrip.getTitle() + "' with " + savedTrip.getParticipants().size() + " participants.");
+        String creatorInfo = currentUser != null ? " by " + currentUser.getName() : "";
+        auditLogService.log(savedTrip.getId(), "TRIP_CREATED", "Created trip '" + savedTrip.getTitle() + "' with " + savedTrip.getParticipants().size() + " participants" + creatorInfo + ".");
 
         return mapToResponse(savedTrip);
     }
@@ -91,7 +98,7 @@ public class TripService {
                 .map(Expense::getAmount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        return TripResponse.builder()
+        TripResponse.TripResponseBuilder builder = TripResponse.builder()
                 .id(trip.getId())
                 .title(trip.getTitle())
                 .description(trip.getDescription())
@@ -99,7 +106,14 @@ public class TripService {
                 .createdAt(trip.getCreatedAt())
                 .participants(participantDTOs)
                 .totalExpenses(totalExpenses)
-                .expenseCount(trip.getExpenses().size())
-                .build();
+                .expenseCount(trip.getExpenses().size());
+
+        if (trip.getUser() != null) {
+            builder.createdByUserId(trip.getUser().getId())
+                    .createdByUserName(trip.getUser().getName())
+                    .createdByUserEmail(trip.getUser().getEmail());
+        }
+
+        return builder.build();
     }
 }
