@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TripSplit — Group Expense Settlement Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: rgba(30, 41, 59, 0.7);
+            --bg-card-hover: rgba(51, 65, 85, 0.8);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --accent-blue: #38bdf8;
+            --accent-purple: #c084fc;
+            --accent-emerald: #34d399;
+            --accent-rose: #fb7185;
+            --accent-amber: #fbbf24;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(192, 132, 252, 0.15) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(52, 211, 153, 0.1) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-bottom: 40px;
+        }
+
+        header {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 16px 32px;
+        }
+
+        .header-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 16px;
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 32px auto 0;
+            padding: 0 24px;
+        }
+
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .trip-selector {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        select, input, textarea {
+            background: rgba(30, 41, 59, 0.9);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            border-color: var(--accent-blue);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0284c7, #7e22ce);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(2, 132, 199, 0.5);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+            transition: all 0.2s ease;
+        }
+
+        .btn-success:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 992px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .glass-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: var(--glass-shadow);
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .badge-status {
+            background: rgba(52, 211, 153, 0.15);
+            color: var(--accent-emerald);
+            border: 1px solid rgba(52, 211, 153, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .balance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .balance-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .balance-card.positive::before { background: var(--accent-emerald); }
+        .balance-card.negative::before { background: var(--accent-rose); }
+        .balance-card.zero::before { background: var(--text-muted); }
+
+        .member-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .balance-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .net-balance {
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-top: 8px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .net-positive { color: var(--accent-emerald); }
+        .net-negative { color: var(--accent-rose); }
+        .net-zero { color: var(--text-muted); }
+
+        .settlement-item {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .settlement-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 600;
+        }
+
+        .settlement-arrow {
+            color: var(--accent-blue);
+            font-size: 0.9rem;
+        }
+
+        .settlement-amount {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: var(--accent-amber);
+            font-size: 1.1rem;
+        }
+
+        .expense-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .expense-table th {
+            text-align: left;
+            padding: 12px 16px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .expense-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.95rem;
+        }
+
+        .category-tag {
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent-blue);
+        }
+
+        .audit-item {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.85rem;
+        }
+
+        .audit-time {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-bottom: 2px;
+        }
+
+        .audit-action {
+            font-weight: 700;
+            color: var(--accent-purple);
+        }
+
+        /* Modal styling */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #1e293b;
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            width: 100%;
+            max-width: 520px;
+            padding: 28px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+        }
+
+        .checkbox-group {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .checkbox-item {
+            background: rgba(15, 23, 42, 0.6);
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <i class="fa-solid fa-receipt"></i> TripSplit
+            </div>
+            <div class="nav-links">
+                <a href="/swagger-ui.html" target="_blank" class="nav-btn"><i class="fa-solid fa-code"></i> OpenAPI / Swagger</a>
+                <a href="/h2-console" target="_blank" class="nav-btn"><i class="fa-solid fa-database"></i> H2 Database Console</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Top Control Bar -->
+        <div class="top-bar">
+            <div class="trip-selector">
+                <label for="tripSelect" style="font-weight: 600; color: var(--text-muted);"><i class="fa-solid fa-plane"></i> Active Trip:</label>
+                <select id="tripSelect" onchange="loadSelectedTrip()">
+                    <!-- Populated dynamically -->
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+                <button class="btn-primary" onclick="openNewTripModal()"><i class="fa-solid fa-plus"></i> Create New Trip</button>
+                <button class="btn-primary" style="background: linear-gradient(135deg, #059669, #0d9488);" onclick="openAddExpenseModal()"><i class="fa-solid fa-file-invoice-dollar"></i> Add Expense</button>
+            </div>
+        </div>
+
+        <div class="grid-layout">
+            <!-- Main Column -->
+            <div>
+                <!-- Trip Summary Header Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div>
+                            <h2 id="tripTitle" style="font-size: 1.5rem; font-weight: 800; color: var(--text-main);">Loading...</h2>
+                            <p id="tripDesc" style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px;"></p>
+                        </div>
+                        <div class="badge-status" id="zeroSumBadge">
+                            <i class="fa-solid fa-shield-halved"></i> Net Balance Sum: 0.00 (Balanced)
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 32px;">
+                        <div>
+                            <span style="font-size: 0.85rem; color: var(--text-muted); display: block;">Total Trip Spending</span>
+                            <span id="tripTotalSpending" style="font-size: 1.8rem; font-weight: 800; color: var(--accent-blue); font-family: 'JetBrains Mono', monospace;">₹0.00</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.85rem; color: var(--text-muted); display: block;">Participants</span>
+                            <span id="tripParticipantCount" style="font-size: 1.8rem; font-weight: 800; color: var(--accent-purple);">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Participant Balances Section -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fa-solid fa-scale-balanced" style="color: var(--accent-blue);"></i> Participant Net Balances</div>
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">Net Balance = Total Paid − Owed Share</span>
+                    </div>
+                    <div class="balance-grid" id="balanceGrid">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Expense History Table -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fa-solid fa-list-check" style="color: var(--accent-purple);"></i> Shared Expense History</div>
+                    </div>
+                    <table class="expense-table">
+                        <thead>
+                            <tr>
+                                <th>Description</th>
+                                <th>Category</th>
+                                <th>Paid By</th>
+                                <th>Amount</th>
+                                <th>Shared By</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expenseTableBody">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sidebar Column -->
+            <div>
+                <!-- Simplified Settlements Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fa-solid fa-hand-holding-dollar" style="color: var(--accent-emerald);"></i> Simplified Settlements</div>
+                        <button class="btn-success" onclick="generateSettlements()"><i class="fa-solid fa-wand-magic-sparkles"></i> Compute</button>
+                    </div>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 16px;">Minimum transactions required to fully clear all balances:</p>
+                    <div id="settlementsList">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+
+                <!-- Audit Log Card -->
+                <div class="glass-card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="fa-solid fa-clock-rotate-left" style="color: var(--accent-amber);"></i> Audit Trail Log</div>
+                    </div>
+                    <div id="auditLogList" style="max-height: 350px; overflow-y: auto;">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Trip Modal -->
+    <div class="modal-overlay" id="newTripModal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 20px; font-weight: 700;"><i class="fa-solid fa-plane"></i> Create New Trip</h3>
+            <form id="newTripForm" onsubmit="handleCreateTrip(event)">
+                <div class="form-group">
+                    <label>Trip Title</label>
+                    <input type="text" id="newTripTitle" placeholder="e.g. Goa Beach Vacation 2026" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="newTripDesc" placeholder="e.g. Hotel, Fuel & Food expenses">
+                </div>
+                <div class="form-group">
+                    <label>Currency</label>
+                    <input type="text" id="newTripCurrency" value="INR" required>
+                </div>
+                <div class="form-group">
+                    <label>Participants (Comma separated)</label>
+                    <input type="text" id="newTripParticipants" placeholder="e.g. Alice, Bob, Charlie, David" required>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                    <button type="button" class="nav-btn" onclick="closeModal('newTripModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Create Trip</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div class="modal-overlay" id="addExpenseModal">
+        <div class="modal-content">
+            <h3 style="margin-bottom: 20px; font-weight: 700;"><i class="fa-solid fa-file-circle-plus"></i> Log Shared Expense</h3>
+            <form id="addExpenseForm" onsubmit="handleAddExpense(event)">
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="expDesc" placeholder="e.g. Resort Booking / Fuel" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount (₹)</label>
+                    <input type="number" step="0.01" id="expAmount" placeholder="0.00" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="expCategory">
+                        <option value="ACCOMMODATION">Accommodation</option>
+                        <option value="TRANSPORT">Transport / Fuel</option>
+                        <option value="FOOD">Food & Dining</option>
+                        <option value="ENTERTAINMENT">Entertainment & Activities</option>
+                        <option value="GENERAL">General / Misc</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Paid By (Payer)</label>
+                    <select id="expPayer" required></select>
+                </div>
+                <div class="form-group">
+                    <label>Shared By (Participants)</label>
+                    <div class="checkbox-group" id="expParticipantsCheckboxes"></div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                    <button type="button" class="nav-btn" onclick="closeModal('addExpenseModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Log Expense</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let trips = [];
+        let activeTrip = null;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            fetchTrips();
+        });
+
+        async function fetchTrips() {
+            try {
+                const res = await fetch('/api/trips');
+                trips = await res.json();
+                const select = document.getElementById('tripSelect');
+                select.innerHTML = '';
+                trips.forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = t.id;
+                    opt.textContent = `${t.title} (${t.currency})`;
+                    select.appendChild(opt);
+                });
+                if (trips.length > 0) {
+                    select.value = trips[0].id;
+                    loadSelectedTrip();
+                }
+            } catch (err) {
+                console.error('Failed to fetch trips', err);
+            }
+        }
+
+        async function loadSelectedTrip() {
+            const tripId = document.getElementById('tripSelect').value;
+            if (!tripId) return;
+
+            try {
+                const res = await fetch(`/api/trips/${tripId}/summary`);
+                const data = await res.json();
+                activeTrip = data;
+
+                document.getElementById('tripTitle').textContent = data.trip.title;
+                document.getElementById('tripDesc').textContent = data.trip.description || 'No description provided';
+                document.getElementById('tripTotalSpending').textContent = `${data.trip.currency} ${data.balanceSummary.totalSpending.toFixed(2)}`;
+                document.getElementById('tripParticipantCount').textContent = data.trip.participants.length;
+
+                // Zero sum rule status
+                const badge = document.getElementById('zeroSumBadge');
+                if (data.balanceSummary.isBalanceValid) {
+                    badge.innerHTML = `<i class="fa-solid fa-shield-halved"></i> Rule 1 Valid: Sum = 0.00`;
+                    badge.style.borderColor = 'rgba(52, 211, 153, 0.3)';
+                    badge.style.color = '#34d399';
+                } else {
+                    badge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Rule Violation: Sum = ${data.balanceSummary.netBalanceSum}`;
+                    badge.style.borderColor = 'rgba(251, 113, 133, 0.3)';
+                    badge.style.color = '#fb7185';
+                }
+
+                renderBalances(data.balanceSummary.balances, data.trip.currency);
+                renderExpenses(data.expenses, data.trip.currency);
+                renderSettlements(data.settlements, data.trip.currency);
+                fetchAuditLogs(tripId);
+            } catch (err) {
+                console.error('Failed to load trip summary', err);
+            }
+        }
+
+        function renderBalances(balances, currency) {
+            const grid = document.getElementById('balanceGrid');
+            grid.innerHTML = '';
+            balances.forEach(b => {
+                let statusClass = 'zero';
+                let sign = '';
+                if (b.netBalance > 0) { statusClass = 'positive'; sign = '+'; }
+                else if (b.netBalance < 0) { statusClass = 'negative'; }
+
+                const card = document.createElement('div');
+                card.className = `balance-card ${statusClass}`;
+                card.innerHTML = `
+                    <div class="member-name">${b.participantName}</div>
+                    <div class="balance-stats"><span>Paid:</span> <span>${currency} ${b.totalPaid.toFixed(2)}</span></div>
+                    <div class="balance-stats"><span>Owed:</span> <span>${currency} ${b.totalOwed.toFixed(2)}</span></div>
+                    <div class="net-balance net-${statusClass}">${sign}${currency} ${b.netBalance.toFixed(2)}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderExpenses(expenses, currency) {
+            const tbody = document.getElementById('expenseTableBody');
+            tbody.innerHTML = '';
+            if (expenses.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">No expenses logged yet. Click "Add Expense" to get started!</td></tr>';
+                return;
+            }
+
+            expenses.forEach(e => {
+                const tr = document.createElement('tr');
+                const sharedNames = e.splits.map(s => s.participantName).join(', ');
+                tr.innerHTML = `
+                    <td style="font-weight: 600;">${e.description}</td>
+                    <td><span class="category-tag">${e.category}</span></td>
+                    <td>${e.payerName}</td>
+                    <td style="font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent-blue);">${currency} ${e.amount.toFixed(2)}</td>
+                    <td style="font-size: 0.85rem; color: var(--text-muted);">${sharedNames}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderSettlements(settlements, currency) {
+            const list = document.getElementById('settlementsList');
+            list.innerHTML = '';
+            if (settlements.length === 0) {
+                list.innerHTML = '<p style="color: var(--text-muted); font-size: 0.85rem; text-align: center; padding: 12px;">All balances are currently clear! No payments needed.</p>';
+                return;
+            }
+
+            settlements.forEach(s => {
+                const item = document.createElement('div');
+                item.className = 'settlement-item';
+                item.innerHTML = `
+                    <div>
+                        <div class="settlement-info">
+                            <span>${s.fromParticipantName}</span>
+                            <i class="fa-solid fa-arrow-right settlement-arrow"></i>
+                            <span>${s.toParticipantName}</span>
+                        </div>
+                        <div class="settlement-amount" style="margin-top: 4px;">${currency} ${s.amount.toFixed(2)}</div>
+                    </div>
+                    <div>
+                        ${s.isSettled ? 
+                            '<span style="color: var(--accent-emerald); font-size: 0.85rem; font-weight: 700;"><i class="fa-solid fa-circle-check"></i> Paid</span>' : 
+                            `<button class="btn-success" onclick="markPaid(${s.id})">Mark Paid</button>`
+                        }
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        async function fetchAuditLogs(tripId) {
+            try {
+                const res = await fetch(`/api/trips/${tripId}/audit-logs`);
+                const logs = await res.json();
+                const container = document.getElementById('auditLogList');
+                container.innerHTML = '';
+                logs.forEach(l => {
+                    const div = document.createElement('div');
+                    div.className = 'audit-item';
+                    const timeStr = new Date(l.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    div.innerHTML = `
+                        <div class="audit-time">${timeStr}</div>
+                        <div><span class="audit-action">${l.action}</span>: ${l.details}</div>
+                    `;
+                    container.appendChild(div);
+                });
+            } catch (err) {
+                console.error('Failed to fetch audit logs', err);
+            }
+        }
+
+        async function generateSettlements() {
+            if (!activeTrip) return;
+            const tripId = activeTrip.trip.id;
+            try {
+                const res = await fetch(`/api/trips/${tripId}/settlements/generate`, { method: 'POST' });
+                if (!res.ok) {
+                    const errData = await res.json();
+                    alert(`Business Rule Error: ${errData.message}`);
+                    return;
+                }
+                loadSelectedTrip();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function markPaid(settlementId) {
+            if (!activeTrip) return;
+            const tripId = activeTrip.trip.id;
+            try {
+                await fetch(`/api/trips/${tripId}/settlements/${settlementId}/settle`, { method: 'PATCH' });
+                loadSelectedTrip();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function openNewTripModal() {
+            document.getElementById('newTripModal').style.display = 'flex';
+        }
+
+        function openAddExpenseModal() {
+            if (!activeTrip) return;
+            const payerSelect = document.getElementById('expPayer');
+            const checkboxes = document.getElementById('expParticipantsCheckboxes');
+            payerSelect.innerHTML = '';
+            checkboxes.innerHTML = '';
+
+            activeTrip.trip.participants.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.id;
+                opt.textContent = p.name;
+                payerSelect.appendChild(opt);
+
+                const div = document.createElement('div');
+                div.className = 'checkbox-item';
+                div.innerHTML = `<input type="checkbox" name="part" value="${p.id}" checked> ${p.name}`;
+                checkboxes.appendChild(div);
+            });
+
+            document.getElementById('addExpenseModal').style.display = 'flex';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        async function handleCreateTrip(e) {
+            e.preventDefault();
+            const title = document.getElementById('newTripTitle').value;
+            const description = document.getElementById('newTripDesc').value;
+            const currency = document.getElementById('newTripCurrency').value;
+            const namesStr = document.getElementById('newTripParticipants').value;
+
+            const participantNames = namesStr.split(',').map(s => s.trim()).filter(s => s.length > 0);
+
+            try {
+                const res = await fetch('/api/trips', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, description, currency, participantNames })
+                });
+                if (res.ok) {
+                    closeModal('newTripModal');
+                    fetchTrips();
+                } else {
+                    const err = await res.json();
+                    alert(err.message || 'Failed to create trip');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function handleAddExpense(e) {
+            e.preventDefault();
+            if (!activeTrip) return;
+
+            const tripId = activeTrip.trip.id;
+            const description = document.getElementById('expDesc').value;
+            const amount = parseFloat(document.getElementById('expAmount').value);
+            const category = document.getElementById('expCategory').value;
+            const payerId = parseInt(document.getElementById('expPayer').value);
+
+            const selectedCheckboxes = document.querySelectorAll('input[name="part"]:checked');
+            const participantIds = Array.from(selectedCheckboxes).map(cb => parseInt(cb.value));
+
+            try {
+                const res = await fetch(`/api/trips/${tripId}/expenses`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ description, amount, category, payerId, participantIds })
+                });
+
+                if (res.ok) {
+                    closeModal('addExpenseModal');
+                    loadSelectedTrip();
+                } else {
+                    const err = await res.json();
+                    alert(err.message || 'Failed to log expense');
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+    </script>
+</body>
+</html>
